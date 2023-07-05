@@ -1,4 +1,4 @@
-namespace UCEMA.Proyecto_Base.NET7
+namespace UCEMA.Subir_Factura_SIGEU.NET7
 {
    internal static class Program
    {

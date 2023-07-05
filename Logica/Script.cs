@@ -1,24 +1,47 @@
-﻿using System.Data;
+﻿using Entidades;
+using System.Data;
 
 namespace Logica
 {
-   public class Script
+   public static class Script
    {
-      public static DataTable TraerDatos()
+      public static Task<DataTable> BuscarEmpresaAsync(string cuitEmpresa)
       {
-         return Datos.Script.TraerDatos();
+         return Datos.Script.BuscarEmpresaAsync(cuitEmpresa);
+      }
 
-         //DataTable dt = new DataTable();
+      public static Task<DataTable> BuscarEmpresaDomicilioAsync(int idEmpresa)
+      {
+         return Datos.Script.BuscarEmpresaDomicilioAsync(idEmpresa);
+      }
 
-         //dt.Columns.Add("Nombre");
-         //dt.Columns.Add("Apellido");
-         //dt.Columns.Add("Edad");
+      public static bool CargarFactura(Factura factura)
+      {
+         return Datos.Script.CargarFactura(factura);
+      }
 
-         //dt.Rows.Add("Juan", "Perez", 25);
-         //dt.Rows.Add("Pedro", "Gomez", 30);
-         //dt.Rows.Add("Maria", "Lopez", 35);
+      public static Task<bool> CargarFacturaAsync(Factura factura)
+      {
+         return Datos.Script.CargarFacturaAsync(factura);
+      }
 
-         //return dt;
+      public static bool FacturaExiste(int idFactura)
+      {
+         DataTable dtResultados = Datos.Script.BuscarFactura(idFactura);
+
+         return dtResultados.Rows.Count > 0;
+      }
+
+      public static async Task<bool> FacturaExisteAsync(long idFactura)
+      {
+         DataTable dtResultados = await Datos.Script.BuscarFacturaAsync(idFactura);
+
+         return dtResultados.Rows.Count > 0;
+      }
+
+      public static async Task<DataTable> GetAllCUITsAsync()
+      {
+         return await Datos.Script.GetAllCUITsAsync();
       }
    }
 }

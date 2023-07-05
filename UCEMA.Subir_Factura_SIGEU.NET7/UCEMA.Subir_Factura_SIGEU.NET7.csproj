@@ -8,11 +8,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>True</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
-    <StartupObject>UCEMA.Proyecto_Base.NET7.Program</StartupObject>
+    <StartupObject>UCEMA.Subir_Factura_SIGEU.NET7.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Entidades\Entidades.csproj" />
     <ProjectReference Include="..\Logica\Logica.csproj" />
+    <ProjectReference Include="..\Utilidades\Utilidades.csproj" />
   </ItemGroup>
 
   <ItemGroup>
