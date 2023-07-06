@@ -9,39 +9,56 @@ using Console = System.Diagnostics.Debug;
 
 namespace UCEMA.Subir_Factura_SIGEU.NET7
 {
-   public class FormUtils
+   public static class FormUtils
    {
-      public static Action onLoadBegin = () => {};
-      public static Action onLoadEnd = () => {};
+      // Fields
+      private static Action onLoadBegin = () => { };
+      private static Action onLoadEnd = () => { };
+      private static Control? statusbar;
+
+      // Properties
+      public static Action OnLoadBegin { get => onLoadBegin; set => onLoadBegin = value; }
+      public static Action OnLoadEnd { get => onLoadEnd; set => onLoadEnd = value; }
+      public static Control? Statusbar { get => statusbar; set => statusbar = value; }
 
       public static async Task<dynamic> RunAsync(Func<dynamic> action)
       {
          return await Task.Run(action);
       }
 
-      public static void Numeric_KeyPress(ref object sender, ref KeyPressEventArgs e, bool isDecimal=false)
+      public static void Numeric_KeyPress(ref object sender, ref KeyPressEventArgs e, bool isDecimal = false)
       {
-         bool condition = isDecimal
-            ? (    !char.IsControl(e.KeyChar) 
-               && !(char.IsDigit(e.KeyChar) 
-                  || e.KeyChar.ToString() == CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator))
-            : (    !char.IsControl(e.KeyChar) 
-               && !char.IsDigit(e.KeyChar));
+         // Obtener el separador decimal del sistema operativo
+         char decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
 
-         if (condition)
+         // Permitir solo números y teclas de movimiento
+         bool isControl = char.IsControl(e.KeyChar);
+         bool isDigit = char.IsDigit(e.KeyChar);
+         bool isDecimalSeparator = e.KeyChar == decimalSeparator;
+         bool canHandle = isControl || isDigit || (isDecimal && isDecimalSeparator);
+
+         // Verificar si ya se ingresó un separador decimal
+         if (isDecimal && isDecimalSeparator && ((TextBox) sender).Text.Contains(decimalSeparator))
          {
-            e.Handled = true;
+            canHandle = false;
          }
+
+         e.Handled = !canHandle;
       }
 
       public static void LoadingON()
       {
-         onLoadBegin.Invoke();
+         OnLoadBegin.Invoke();
       }
 
       public static void LoadingOFF()
       {
-         onLoadEnd.Invoke();
+         OnLoadEnd.Invoke();
+      }
+
+      public static void StatusMessage(string message)
+      {
+         
       }
    }
 }

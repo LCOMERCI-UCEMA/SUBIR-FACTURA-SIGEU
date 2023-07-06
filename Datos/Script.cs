@@ -120,13 +120,19 @@ namespace Datos
       public static async Task<DataTable> BuscarEmpresaAsync(string cuitEmpresa)
       {
          List<string> campos = new List<string>() {
-            "N_ID_EMPRESA", "D_EMPRESA", "N_CUIT", "", "", "", "", "", ""
+             "EMPRESAS.N_ID_EMPRESA", "D_EMPRESA", "N_CUIT",
+            @$"CASE WHEN D_DIRECCION IS NULL THEN '{Constantes.SIN_DOMICILIO}'
+                   ELSE D_DIRECCION||' '||N_DOMICILIO END AS DOMICILIO",
+            @"CASE WHEN C_PROVINCIA = 'C' THEN 'CABA' 
+                   ELSE D_LOCALIDAD END AS LOCALIDAD",
+             "C_RUBRO", "C_COND_IVA", "C_DOMICILIO"
          };
-         return await ConsultarAsync(@$"SELECT {string.Join(", ", campos.ToArray())} 
-                                          FROM CEMAP.EMPRESAS 
-                                          LEFT JOIN CEMAP.EMPRESAS_DOMICILIOS
-                                             ON EMPRESAS.N_ID_EMPRESA = EMPRESAS_DOMICILIOS.N_ID_EMPRESA
-                                         WHERE N_CUIT = '{cuitEmpresa}'");
+         string sql = @$"SELECT {string.Join(", ", campos.ToArray())} 
+                           FROM CEMAP.EMPRESAS 
+                           LEFT JOIN CEMAP.EMPRESAS_DOMICILIOS
+                              ON EMPRESAS.N_ID_EMPRESA = EMPRESAS_DOMICILIOS.N_ID_EMPRESA
+                           WHERE N_CUIT = '{cuitEmpresa}'";
+         return await ConsultarAsync(sql);
       }
 
       public static async Task<DataTable> BuscarEmpresaDomicilioAsync(int idEmpresa)

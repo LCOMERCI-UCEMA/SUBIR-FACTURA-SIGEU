@@ -19,9 +19,14 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
       Factura factura;
       NotaCredito notaCredito;
 
+      List<(TextBox descripcion, TextBox importe)> itemsFactura = new List<(TextBox, TextBox)>();
+
       public frmPrincipal()
       {
          InitializeComponent();
+
+         InitializeFormUtils();
+         InitializeFacturaItems();
          InitializeDialog();
 
          cursorPos_CUIT = 0;
@@ -29,8 +34,32 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
 
          factura = new Factura();
          notaCredito = new NotaCredito();
+      }
 
-         FormUtils.onLoadBegin = () =>
+      private void InitializeFacturaItems()
+      {
+         itemsFactura.Add((txtItem01, txtImporte01));
+         itemsFactura.Add((txtItem02, txtImporte02));
+         itemsFactura.Add((txtItem03, txtImporte03));
+         itemsFactura.Add((txtItem04, txtImporte04));
+         itemsFactura.Add((txtItem05, txtImporte05));
+         itemsFactura.Add((txtItem06, txtImporte06));
+         itemsFactura.Add((txtItem07, txtImporte07));
+         itemsFactura.Add((txtItem08, txtImporte08));
+         itemsFactura.Add((txtItem09, txtImporte09));
+
+         foreach (var itemFactura in itemsFactura)
+         {
+            itemFactura.descripcion.Enabled = false;
+            itemFactura.importe.Enabled = false;
+         }
+
+         itemsFactura[0].descripcion.Enabled = true;
+      }
+
+      private void InitializeFormUtils()
+      {
+         FormUtils.OnLoadBegin = () =>
          {
             Console.WriteLine("CALL: FormUtils.onLoadBegin()");
 
@@ -45,7 +74,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
             }
          };
 
-         FormUtils.onLoadEnd = () =>
+         FormUtils.OnLoadEnd = () =>
          {
             Console.WriteLine("CALL: FormUtils.onLoadEnd()");
             if (formCargando.Visible)
@@ -150,8 +179,8 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
          else
          {
+            grpEmpresa.Enabled = true; // Habilito el grupo de controles de empresa
             lblNumFactura.ForeColor = Color.LimeGreen;
-            grpEmpresa.Enabled = true;
             txtCUIT.Focus();
             factura.NumeroFactura = long.Parse(strIdFactura);
          }
@@ -222,12 +251,10 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
             return;
          }
 
-         // Check if the company has a registered address.
-         FormUtils.LoadingON();
-         DataTable empresaDomicilio = await Logica.Script.BuscarEmpresaDomicilioAsync(idEmpresa);
-         FormUtils.LoadingOFF();
+         // Chequeo si la empresa tiene domicilio registrado
+         string empresaDomicilio = datosEmpresa.Rows[0]["DOMICILIO"].ToString();
 
-         if (empresaDomicilio.Rows.Count == 0)
+         if (empresaDomicilio == Constantes.SIN_DOMICILIO)
          {
             MessageBox.Show("No se puede aceptar la factura porque la empresa no tiene domicilio registrado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
@@ -238,6 +265,9 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
 
          grpFechaVto.Enabled = true;
          grpImporteTotal.Enabled = true;
+
+         dtpickerFechaVencimiento.Focus();
+         //txtImporteTotal.Focus();
 
          //btnCargarFactura.Enabled = true;
       }
@@ -330,6 +360,11 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
             MessageBox.Show("El importe total no puede ser negativo.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             txtImporteTotal.Focus();
          }
+
+         factura.ImporteTotal = importeTotal;
+
+         grpItemsFactura.Enabled = true; // Habilito grupo de items de factura
+         //txtItem01.Enabled = true; // Habilito primer item de factura
       }
 
       private void txtCUIT_KeyPress(object sender, KeyPressEventArgs e)
@@ -348,6 +383,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          if (fechaVencimiento < fechaActual.AddYears(-1))
          {
             MessageBox.Show("La fecha de vencimiento no debería ser mayor a 1 año.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            FormUtils.StatusMessage("La fecha de vencimiento no debería ser mayor a 1 año.");
          }
       }
 
@@ -364,6 +400,89 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          FormUtils.LoadingON();
          await Task.Run(() => { Thread.Sleep(5000); });
          FormUtils.LoadingOFF();
+      }
+
+      private void txtImporteTotal_KeyPress(object sender, KeyPressEventArgs e)
+      {
+         FormUtils.Numeric_KeyPress(ref sender, ref e, true);
+      }
+
+      private void ItemImporte_KeyPress(object sender, KeyPressEventArgs e)
+      {
+         FormUtils.Numeric_KeyPress(ref sender, ref e, true);
+      }
+
+      private void ItemDescripcion_TextChanged(object sender, EventArgs e)
+      {
+         TextBox txtDescripcion = (TextBox) sender;
+         (TextBox descripcion, TextBox importe)
+            renglonActual = itemsFactura.FirstOrDefault(par => par.descripcion == txtDescripcion);
+
+         int indiceActual = itemsFactura.IndexOf(renglonActual);
+
+         (TextBox descripcion, TextBox importe)
+            renglonSiguiente = itemsFactura[indiceActual + 1];
+
+         bool hayDescripcion = !string.IsNullOrWhiteSpace(txtDescripcion.Text);
+         bool hayImporte = !string.IsNullOrWhiteSpace(renglonActual.importe.Text);
+
+         int ultimoIndice = itemsFactura.Count - 1;
+
+         if (hayDescripcion)
+         {
+            // Habilitar el TextBox de importe del par actual
+            renglonActual.importe.Enabled = true;
+
+            renglonSiguiente.descripcion.Enabled = indiceActual < ultimoIndice && hayImporte ? true : false;
+         }
+         else if (!hayImporte)
+         {
+            renglonActual.importe.Enabled = false;
+
+            renglonSiguiente.descripcion.Enabled = indiceActual < ultimoIndice ? false : true;
+         }
+
+      }
+
+      private void ItemImporte_TextChanged(object sender, EventArgs e)
+      {
+         TextBox txtImporte = (TextBox) sender;
+         (TextBox descripcion, TextBox importe) parActual = itemsFactura.FirstOrDefault(par => par.importe == txtImporte);
+         int indiceActual = itemsFactura.IndexOf(parActual);
+
+         bool hayDescripcion = !string.IsNullOrWhiteSpace(parActual.descripcion.Text);
+         bool hayImporte = !string.IsNullOrWhiteSpace(txtImporte.Text);
+
+         if (indiceActual < itemsFactura.Count - 1)
+         {
+            var siguientePar = itemsFactura[indiceActual + 1];
+
+            if (hayImporte && hayDescripcion)
+            {
+               siguientePar.descripcion.Enabled = true;
+            }
+            else
+            {
+               siguientePar.descripcion.Enabled = false;
+            }
+         }
+      }
+
+      private void txtImporteTotal_TextChanged(object sender, EventArgs e)
+      {
+         TextBox txtImporteTotal = (TextBox) sender;
+         bool hayImporteTotal = !string.IsNullOrWhiteSpace(txtImporteTotal.Text);
+
+         if (hayImporteTotal)
+         {
+            grpItemsFactura.Enabled = true;
+            //txtItem01.Enabled = true;
+         }
+         else
+         {
+            grpItemsFactura.Enabled = false;
+            //txtItem01.Enabled = false;
+         }
       }
    }
 }

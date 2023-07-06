@@ -30,7 +30,6 @@
       {
          DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPrincipal));
-         dlgAbrirArchivo = new OpenFileDialog();
          btnCargarFactura = new Button();
          tabTipoComprobante = new TabControl();
          tabFactura = new TabPage();
@@ -100,6 +99,8 @@
          btnValidarFacturaExistente = new Button();
          txtNumFacturaNC = new TextBox();
          btnCargando = new Button();
+         statusbar = new StatusStrip();
+         lblStatusInformation = new ToolStripStatusLabel();
          tabTipoComprobante.SuspendLayout();
          tabFactura.SuspendLayout();
          grpImporteTotal.SuspendLayout();
@@ -114,13 +115,14 @@
          groupBox4.SuspendLayout();
          groupBox5.SuspendLayout();
          grpNumeroFC.SuspendLayout();
+         statusbar.SuspendLayout();
          SuspendLayout();
          // 
          // btnCargarFactura
          // 
          btnCargarFactura.Anchor = AnchorStyles.Bottom;
          btnCargarFactura.Enabled = false;
-         btnCargarFactura.Location = new Point(228, 602);
+         btnCargarFactura.Location = new Point(228, 599);
          btnCargarFactura.Name = "btnCargarFactura";
          btnCargarFactura.Size = new Size(107, 24);
          btnCargarFactura.TabIndex = 7;
@@ -136,8 +138,8 @@
          tabTipoComprobante.Location = new Point(12, 12);
          tabTipoComprobante.Name = "tabTipoComprobante";
          tabTipoComprobante.SelectedIndex = 0;
-         tabTipoComprobante.Size = new Size(573, 674);
-         tabTipoComprobante.TabIndex = 8;
+         tabTipoComprobante.Size = new Size(573, 671);
+         tabTipoComprobante.TabIndex = 0;
          // 
          // tabFactura
          // 
@@ -150,7 +152,7 @@
          tabFactura.Location = new Point(4, 24);
          tabFactura.Name = "tabFactura";
          tabFactura.Padding = new Padding(3);
-         tabFactura.Size = new Size(565, 646);
+         tabFactura.Size = new Size(565, 643);
          tabFactura.TabIndex = 0;
          tabFactura.Text = "Factura";
          tabFactura.UseVisualStyleBackColor = true;
@@ -162,7 +164,7 @@
          grpImporteTotal.Location = new Point(293, 243);
          grpImporteTotal.Name = "grpImporteTotal";
          grpImporteTotal.Size = new Size(266, 59);
-         grpImporteTotal.TabIndex = 6;
+         grpImporteTotal.TabIndex = 3;
          grpImporteTotal.TabStop = false;
          grpImporteTotal.Text = "Importe Total";
          // 
@@ -175,7 +177,8 @@
          txtImporteTotal.Size = new Size(227, 23);
          txtImporteTotal.TabIndex = 0;
          txtImporteTotal.TextAlign = HorizontalAlignment.Right;
-         txtImporteTotal.KeyPress += txtNumFactura_KeyPress;
+         txtImporteTotal.TextChanged += txtImporteTotal_TextChanged;
+         txtImporteTotal.KeyPress += txtImporteTotal_KeyPress;
          txtImporteTotal.Leave += txtImporteTotal_Leave;
          // 
          // grpFechaVto
@@ -185,7 +188,7 @@
          grpFechaVto.Location = new Point(6, 243);
          grpFechaVto.Name = "grpFechaVto";
          grpFechaVto.Size = new Size(266, 59);
-         grpFechaVto.TabIndex = 6;
+         grpFechaVto.TabIndex = 2;
          grpFechaVto.TabStop = false;
          grpFechaVto.Text = "Fecha de vencimiento";
          // 
@@ -223,8 +226,8 @@
          grpItemsFactura.Enabled = false;
          grpItemsFactura.Location = new Point(6, 308);
          grpItemsFactura.Name = "grpItemsFactura";
-         grpItemsFactura.Size = new Size(553, 332);
-         grpItemsFactura.TabIndex = 5;
+         grpItemsFactura.Size = new Size(553, 329);
+         grpItemsFactura.TabIndex = 4;
          grpItemsFactura.TabStop = false;
          grpItemsFactura.Text = "Ítems";
          // 
@@ -235,6 +238,9 @@
          txtImporte09.Name = "txtImporte09";
          txtImporte09.Size = new Size(94, 23);
          txtImporte09.TabIndex = 23;
+         txtImporte09.Tag = "campo9";
+         txtImporte09.TextChanged += ItemImporte_TextChanged;
+         txtImporte09.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte08
          // 
@@ -243,6 +249,9 @@
          txtImporte08.Name = "txtImporte08";
          txtImporte08.Size = new Size(94, 23);
          txtImporte08.TabIndex = 21;
+         txtImporte08.Tag = "campo8";
+         txtImporte08.TextChanged += ItemImporte_TextChanged;
+         txtImporte08.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte07
          // 
@@ -251,6 +260,9 @@
          txtImporte07.Name = "txtImporte07";
          txtImporte07.Size = new Size(94, 23);
          txtImporte07.TabIndex = 19;
+         txtImporte07.Tag = "campo7";
+         txtImporte07.TextChanged += ItemImporte_TextChanged;
+         txtImporte07.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte06
          // 
@@ -259,6 +271,9 @@
          txtImporte06.Name = "txtImporte06";
          txtImporte06.Size = new Size(94, 23);
          txtImporte06.TabIndex = 17;
+         txtImporte06.Tag = "campo6";
+         txtImporte06.TextChanged += ItemImporte_TextChanged;
+         txtImporte06.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte05
          // 
@@ -267,6 +282,9 @@
          txtImporte05.Name = "txtImporte05";
          txtImporte05.Size = new Size(94, 23);
          txtImporte05.TabIndex = 15;
+         txtImporte05.Tag = "campo5";
+         txtImporte05.TextChanged += ItemImporte_TextChanged;
+         txtImporte05.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte04
          // 
@@ -275,6 +293,9 @@
          txtImporte04.Name = "txtImporte04";
          txtImporte04.Size = new Size(94, 23);
          txtImporte04.TabIndex = 13;
+         txtImporte04.Tag = "campo4";
+         txtImporte04.TextChanged += ItemImporte_TextChanged;
+         txtImporte04.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte03
          // 
@@ -283,6 +304,9 @@
          txtImporte03.Name = "txtImporte03";
          txtImporte03.Size = new Size(94, 23);
          txtImporte03.TabIndex = 11;
+         txtImporte03.Tag = "campo3";
+         txtImporte03.TextChanged += ItemImporte_TextChanged;
+         txtImporte03.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte02
          // 
@@ -291,6 +315,9 @@
          txtImporte02.Name = "txtImporte02";
          txtImporte02.Size = new Size(94, 23);
          txtImporte02.TabIndex = 9;
+         txtImporte02.Tag = "campo2";
+         txtImporte02.TextChanged += ItemImporte_TextChanged;
+         txtImporte02.KeyPress += ItemImporte_KeyPress;
          // 
          // txtImporte01
          // 
@@ -299,6 +326,9 @@
          txtImporte01.Name = "txtImporte01";
          txtImporte01.Size = new Size(94, 23);
          txtImporte01.TabIndex = 7;
+         txtImporte01.Tag = "campo1";
+         txtImporte01.TextChanged += ItemImporte_TextChanged;
+         txtImporte01.KeyPress += ItemImporte_KeyPress;
          // 
          // txtItem09
          // 
@@ -307,6 +337,8 @@
          txtItem09.Name = "txtItem09";
          txtItem09.Size = new Size(392, 23);
          txtItem09.TabIndex = 22;
+         txtItem09.Tag = "txtImporte09";
+         txtItem09.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem08
          // 
@@ -315,6 +347,8 @@
          txtItem08.Name = "txtItem08";
          txtItem08.Size = new Size(392, 23);
          txtItem08.TabIndex = 20;
+         txtItem08.Tag = "txtImporte08";
+         txtItem08.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem07
          // 
@@ -323,6 +357,8 @@
          txtItem07.Name = "txtItem07";
          txtItem07.Size = new Size(392, 23);
          txtItem07.TabIndex = 18;
+         txtItem07.Tag = "txtImporte07";
+         txtItem07.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem06
          // 
@@ -331,6 +367,8 @@
          txtItem06.Name = "txtItem06";
          txtItem06.Size = new Size(392, 23);
          txtItem06.TabIndex = 16;
+         txtItem06.Tag = "txtImporte06";
+         txtItem06.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem05
          // 
@@ -339,6 +377,8 @@
          txtItem05.Name = "txtItem05";
          txtItem05.Size = new Size(392, 23);
          txtItem05.TabIndex = 14;
+         txtItem05.Tag = "txtImporte05";
+         txtItem05.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem04
          // 
@@ -347,6 +387,8 @@
          txtItem04.Name = "txtItem04";
          txtItem04.Size = new Size(392, 23);
          txtItem04.TabIndex = 12;
+         txtItem04.Tag = "txtImporte04";
+         txtItem04.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem03
          // 
@@ -355,6 +397,8 @@
          txtItem03.Name = "txtItem03";
          txtItem03.Size = new Size(392, 23);
          txtItem03.TabIndex = 10;
+         txtItem03.Tag = "txtImporte03";
+         txtItem03.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem02
          // 
@@ -363,6 +407,8 @@
          txtItem02.Name = "txtItem02";
          txtItem02.Size = new Size(392, 23);
          txtItem02.TabIndex = 8;
+         txtItem02.Tag = "txtImporte02";
+         txtItem02.TextChanged += ItemDescripcion_TextChanged;
          // 
          // txtItem01
          // 
@@ -370,7 +416,9 @@
          txtItem01.Location = new Point(19, 22);
          txtItem01.Name = "txtItem01";
          txtItem01.Size = new Size(392, 23);
-         txtItem01.TabIndex = 6;
+         txtItem01.TabIndex = 0;
+         txtItem01.Tag = "txtImporte01";
+         txtItem01.TextChanged += ItemDescripcion_TextChanged;
          // 
          // grpEmpresa
          // 
@@ -383,7 +431,7 @@
          grpEmpresa.Location = new Point(6, 77);
          grpEmpresa.Name = "grpEmpresa";
          grpEmpresa.Size = new Size(553, 160);
-         grpEmpresa.TabIndex = 4;
+         grpEmpresa.TabIndex = 1;
          grpEmpresa.TabStop = false;
          grpEmpresa.Text = "Empresa";
          // 
@@ -404,7 +452,7 @@
          txtCUIT.Name = "txtCUIT";
          txtCUIT.PlaceholderText = "Ej: 00000000000 (hasta 11 dígitos)";
          txtCUIT.Size = new Size(243, 23);
-         txtCUIT.TabIndex = 4;
+         txtCUIT.TabIndex = 0;
          txtCUIT.TextAlign = HorizontalAlignment.Right;
          txtCUIT.KeyDown += txtCUIT_KeyDown;
          txtCUIT.KeyPress += txtCUIT_KeyPress;
@@ -414,7 +462,7 @@
          btnBuscarEmpresa.Location = new Point(336, 22);
          btnBuscarEmpresa.Name = "btnBuscarEmpresa";
          btnBuscarEmpresa.Size = new Size(75, 23);
-         btnBuscarEmpresa.TabIndex = 5;
+         btnBuscarEmpresa.TabIndex = 1;
          btnBuscarEmpresa.Text = "&Buscar";
          btnBuscarEmpresa.UseVisualStyleBackColor = true;
          btnBuscarEmpresa.Click += btnBuscarEmpresa_Click;
@@ -446,7 +494,7 @@
          grpNumFactura.Location = new Point(6, 6);
          grpNumFactura.Name = "grpNumFactura";
          grpNumFactura.Size = new Size(553, 61);
-         grpNumFactura.TabIndex = 3;
+         grpNumFactura.TabIndex = 0;
          grpNumFactura.TabStop = false;
          grpNumFactura.Text = "Número";
          // 
@@ -493,7 +541,7 @@
          tabNotaCredito.Location = new Point(4, 24);
          tabNotaCredito.Name = "tabNotaCredito";
          tabNotaCredito.Padding = new Padding(3);
-         tabNotaCredito.Size = new Size(565, 646);
+         tabNotaCredito.Size = new Size(565, 643);
          tabNotaCredito.TabIndex = 1;
          tabNotaCredito.Text = "Nota de Crédito";
          tabNotaCredito.UseVisualStyleBackColor = true;
@@ -560,7 +608,7 @@
          groupBox4.Controls.Add(txtItemNC01);
          groupBox4.Location = new Point(6, 308);
          groupBox4.Name = "groupBox4";
-         groupBox4.Size = new Size(553, 332);
+         groupBox4.Size = new Size(553, 329);
          groupBox4.TabIndex = 9;
          groupBox4.TabStop = false;
          groupBox4.Text = "Ítems";
@@ -794,13 +842,29 @@
          btnCargando.TabIndex = 12;
          btnCargando.Text = "CARGAR";
          btnCargando.UseVisualStyleBackColor = true;
+         btnCargando.Visible = false;
          btnCargando.Click += btnCargando_Click;
+         // 
+         // statusbar
+         // 
+         statusbar.Items.AddRange(new ToolStripItem[] { lblStatusInformation });
+         statusbar.Location = new Point(0, 704);
+         statusbar.Name = "statusbar";
+         statusbar.Size = new Size(597, 22);
+         statusbar.SizingGrip = false;
+         statusbar.TabIndex = 13;
+         // 
+         // lblStatusInformation
+         // 
+         lblStatusInformation.Name = "lblStatusInformation";
+         lblStatusInformation.Size = new Size(0, 17);
          // 
          // frmPrincipal
          // 
          AutoScaleDimensions = new SizeF(7F, 15F);
          AutoScaleMode = AutoScaleMode.Font;
-         ClientSize = new Size(597, 698);
+         ClientSize = new Size(597, 726);
+         Controls.Add(statusbar);
          Controls.Add(btnCargando);
          Controls.Add(tabTipoComprobante);
          FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -834,11 +898,13 @@
          groupBox5.PerformLayout();
          grpNumeroFC.ResumeLayout(false);
          grpNumeroFC.PerformLayout();
+         statusbar.ResumeLayout(false);
+         statusbar.PerformLayout();
          ResumeLayout(false);
+         PerformLayout();
       }
 
       #endregion
-      private OpenFileDialog dlgAbrirArchivo;
       private Button btnCargarFactura;
       private TabControl tabTipoComprobante;
       private TabPage tabFactura;
@@ -908,5 +974,7 @@
       private Button btnValidarNotaCredito;
       private TextBox txtNotaCredito;
       private Button btnCargando;
+      private StatusStrip statusbar;
+      private ToolStripStatusLabel lblStatusInformation;
    }
 }
