@@ -56,6 +56,20 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          OnLoadEnd.Invoke();
       }
 
+      public static GroupBox? GetParentGroupBox(Control control)
+      {
+         Control? parent = control.Parent;
+
+         while (parent != null)
+         {
+            if (parent is GroupBox groupBox)
+               return groupBox;
+            parent = parent.Parent;
+         }
+
+         return null;
+      }
+
       public static void StatusMessage(string message)
       {
          

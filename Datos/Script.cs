@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace Datos
             using (OracleCommand cmd = con.CreateCommand())
             {
                cmd.CommandText = $"SELECT {campos} FROM {tabla} ";
+
                if (orden.Length > 0)
                {
                   cmd.CommandText += ($"ORDER BY {orden}");
@@ -40,16 +42,6 @@ namespace Datos
          return dt;
       }
       
-      public static DataTable BuscarFactura(int idFactura)
-      {
-         return Consultar(@$"SELECT * FROM CEMAP.FACTURAS WHERE N_FACTURA = '{idFactura}'");
-      }
-      
-      public static async Task<DataTable> BuscarFacturaAsync(long idFactura)
-      {
-         return await ConsultarAsync(@$"SELECT * FROM CEMAP.FACTURAS WHERE N_FACTURA = '{idFactura}'");
-      }
-
       /// <summary>
       ///    Ejecuta una consulta sincrónica.
       /// </summary>
@@ -107,11 +99,58 @@ namespace Datos
                using (OracleDataAdapter adp = new OracleDataAdapter(cmd))
                {
                   await Task.Run(() => { 
-                     adp.Fill(dt); 
+                     adp.Fill(dt); // Esta mierda me estallaba y no sé por qué.
                   });
                }
             }
             con.Close();
+         }
+
+         return dt;
+      }
+      
+      /// <summary>
+      ///    Ejecuta una consulta asincrónica a un Stored Procedure.
+      /// </summary>
+      /// <returns>
+      ///    Devuelve un DataTable con los resultados de la consulta.
+      /// </returns>
+      public static async Task<DataTable> StoredProcedureAsync( string storedProcName,
+                                                                Dictionary<string, StoredProcedureParam> storedProcArgs )
+      {
+         DataTable dt = new DataTable();
+
+         using (OracleConnection cnx = new OracleConnection(Conexion.StrConexion()))
+         {
+            await cnx.OpenAsync();
+
+            using (OracleCommand cmd = new OracleCommand(storedProcName, cnx))
+            {
+               cmd.CommandType = CommandType.StoredProcedure;
+
+               foreach (KeyValuePair<string, StoredProcedureParam> arg in storedProcArgs)
+               {
+                  StoredProcedureParam param = arg.Value;
+
+                  cmd.Parameters.Add(arg.Key, param.Tipo).Value = param.Valor;
+               }
+
+               // envolver en try catch
+               using (OracleDataAdapter adp = new OracleDataAdapter(cmd))
+               {
+                  await Task.Run(() => {
+                     try
+                     {
+                        adp.Fill(dt);
+                     }
+                     catch (Exception ex)
+                     {
+                        Console.WriteLine(ex.Message);
+                     }
+                  });
+               }
+            }
+            cnx.Close();
          }
 
          return dt;
@@ -147,6 +186,16 @@ namespace Datos
          return dtResultado.Rows.Count > 0;
       }
 
+      // Creo el método: "public static async Task<bool> CargarFacturaAsync(Factura factura)" que invocará un storeprocedure de PL/SQL
+      // que se encargará de cargar la factura en la base de datos.
+      //public static async Task<bool> CargarFacturaAsync(Factura factura)
+      public static async Task<DataTable> CargarFacturaAsync(Dictionary<string, StoredProcedureParam> args)
+      {
+         // TODO: Desempaquetar los params segun como haya que llamarla...
+         return await StoredProcedureAsync("GENERAR_FACTURA_SIGEU", args);
+      }
+
+/*
       public static async Task<bool> CargarFacturaAsync(Factura factura)
       {
          // TODO: Desempaquetar los params segun como haya que llamarla...
@@ -154,10 +203,27 @@ namespace Datos
 
          return dtResultado.Rows.Count > 0;
       }
-
+*/
       public static async Task<DataTable> GetAllCUITsAsync()
       {
          return await ConsultarAsync("SELECT N_CUIT FROM CEMAP.EMPRESAS");
+      }
+
+
+      public static DataTable BuscarFactura(int idFactura)
+      {
+         return Consultar(@$"SELECT * FROM CEMAP.FACTURAS WHERE N_FACTURA = '{idFactura}'");
+      }
+
+      public static async Task<DataTable> BuscarFacturaAsync(long idFactura)
+      {
+         return await ConsultarAsync(@$"SELECT * FROM CEMAP.FACTURAS WHERE N_FACTURA = '{idFactura}'");
+      }
+
+
+      public static async Task<DataTable> BuscarNotaCreditoAsync(long idNotaCredito)
+      {
+         return await ConsultarAsync(@$"SELECT * FROM CEMAP.NOTAS_CREDITO WHERE N_NOTA = '{idNotaCredito}'");
       }
    }
 }

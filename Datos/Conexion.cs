@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entidades;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,18 @@ namespace Datos
       //DESA
       //public static string strConexion = @"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=pluton.ucema.edu.ar)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=pdbpluton.ucema.edu.ar)));User Id=;Password=;";
       //PRODUCCION
+      private const string DATASOURCE_PLUTON = @"(
+         DESCRIPTION=(
+            ADDRESS=
+               (PROTOCOL=TCP)
+               (HOST=pluton.ucema.edu.ar)
+               (PORT=1521)
+            )(
+            CONNECT_DATA=
+               (SERVICE_NAME=pdbpluton.ucema.edu.ar)
+         )
+      )";
+      
       private const string DATASOURCE_NEPTUNO = @"(
          DESCRIPTION=(
             ADDRESS=
@@ -23,8 +36,11 @@ namespace Datos
          )
       )";
 
-      // A Oracle no le gusta que haya espacios en blanco antes de los parametros de conexion, por eso lo meto en una líneae.
-      private const string strConexion = $"Data Source={DATASOURCE_NEPTUNO};User Id=UCEMADEV;Password=ucema49585!;";
+      // En lo que respecta a las cadenas de conexión, a Oracle NO le gusta que haya espacios en blanco
+      // entre cada ";" y el nombre del siguiente parámetro.
+
+      //private const string strConexion = @$"Data Source={DATASOURCE_NEPTUNO};User Id=UCEMADEV;Password=ucema49585!;"; // PROD
+      private const string strConexion = @$"Data Source={DATASOURCE_PLUTON};User Id={Constantes.DB_USERNAME};Password={Constantes.DB_PASSWORD};"; // TEST
 
       public static string StrConexion()
       {

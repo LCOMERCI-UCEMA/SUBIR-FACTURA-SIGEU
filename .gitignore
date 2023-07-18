@@ -400,3 +400,6 @@ FodyWeavers.xsd
 bin
 obj
 packages
+
+docs/
+docs.zip

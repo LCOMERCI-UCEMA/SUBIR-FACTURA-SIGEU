@@ -9,25 +9,27 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
    public partial class frmPrincipal : Form
    {
       protected int cursorPos_CUIT;
-      protected Color textColor;
+      protected Color? textColor;
       protected DataTable? dtEmpresa;
 
-      protected PictureBox picOverlay;
+      protected PictureBox? picOverlay;
       protected frmCargando formCargando;
-      protected DialogResult dlgCargando;
+      protected DialogResult? dlgCargando;
 
-      Factura factura;
-      NotaCredito notaCredito;
+      protected Factura factura;
+      protected NotaCredito notaCredito;
 
-      List<(TextBox descripcion, TextBox importe)> itemsFactura = new List<(TextBox, TextBox)>();
+      protected readonly List<(TextBox descripcion, TextBox importe)> itemsFactura = new List<(TextBox, TextBox)>();
+      protected readonly List<(TextBox descripcion, TextBox importe)> itemsNotaCredito = new List<(TextBox, TextBox)>();
 
       public frmPrincipal()
       {
          InitializeComponent();
+         formCargando = new frmCargando();
 
+         InitializeDialog();
          InitializeFormUtils();
          InitializeFacturaItems();
-         InitializeDialog();
 
          cursorPos_CUIT = 0;
          textColor = txtNumFactura.ForeColor;
@@ -55,6 +57,27 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
 
          itemsFactura[0].descripcion.Enabled = true;
+      }
+
+      private void InitializeNotaCreditoItems()
+      {
+         itemsNotaCredito.Add((txtItem01, txtImporte01));
+         itemsNotaCredito.Add((txtItem02, txtImporte02));
+         itemsNotaCredito.Add((txtItem03, txtImporte03));
+         itemsNotaCredito.Add((txtItem04, txtImporte04));
+         itemsNotaCredito.Add((txtItem05, txtImporte05));
+         itemsNotaCredito.Add((txtItem06, txtImporte06));
+         itemsNotaCredito.Add((txtItem07, txtImporte07));
+         itemsNotaCredito.Add((txtItem08, txtImporte08));
+         itemsNotaCredito.Add((txtItem09, txtImporte09));
+
+         foreach (var itemNotaCredito in itemsNotaCredito)
+         {
+            itemNotaCredito.descripcion.Enabled = false;
+            itemNotaCredito.importe.Enabled = false;
+         }
+
+         itemsNotaCredito[0].descripcion.Enabled = true;
       }
 
       private void InitializeFormUtils()
@@ -85,7 +108,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          };
       }
 
-      private void InitializeDialog()
+      public void InitializeDialog()
       {
          // hago el overlay semi-transparente que se mostrara por detras del form cargando
          picOverlay = new PictureBox();
@@ -99,8 +122,6 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
 
 
          // form cargando
-         formCargando = new frmCargando();
-
          formCargando.Owner = this;
          //formCargando.StartPosition = FormStartPosition.CenterParent;
          formCargando.StartPosition = FormStartPosition.Manual;
@@ -110,7 +131,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          //formCargando.TransparencyKey = Color.FromArgb(128, Color.FromKnownColor(KnownColor.Control));
       }
 
-      private async void frmPrincipal_Load(object sender, EventArgs e)
+      private void frmPrincipal_Load(object sender, EventArgs e)
       {
          this.KeyPreview = true;
          txtNumFactura.Focus();
@@ -147,6 +168,9 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
       }
 
+      /// <summary>
+      ///   Step 1: Validar el número de factura
+      /// </summary>
       private async void btnValidarNumFactura_Click(object sender, EventArgs e)
       {
          string strIdFactura = txtNumFactura.Text;
@@ -166,24 +190,25 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
 
          strIdFactura = FacturaHelper.AplicarMascara(strIdFactura);
-         FormUtils.LoadingON();
 
+         FormUtils.LoadingON();
          bool facturaExiste = await Logica.Script.FacturaExisteAsync(long.Parse(strIdFactura));
          FormUtils.LoadingOFF();
+
          lblNumFactura.Text = strIdFactura;
 
          if (facturaExiste)
          {
             lblNumFactura.ForeColor = Color.Red;
             txtNumFactura.Focus();
+            return;
          }
-         else
-         {
-            grpEmpresa.Enabled = true; // Habilito el grupo de controles de empresa
-            lblNumFactura.ForeColor = Color.LimeGreen;
-            txtCUIT.Focus();
-            factura.NumeroFactura = long.Parse(strIdFactura);
-         }
+
+         grpEmpresa.Enabled = true; // Habilito el grupo de controles de empresa
+         lblNumFactura.ForeColor = Color.LimeGreen;
+         txtCUIT.Focus();
+
+         factura.NumeroFactura = long.Parse(strIdFactura);
       }
 
       private void txtNumFactura_KeyPress(object sender, KeyPressEventArgs e)
@@ -200,7 +225,6 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
       {
          if (e.KeyCode == Keys.Enter)
          {
-            //MessageBox.Show("Se presionó enter", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             btnBuscarEmpresa.PerformClick();
          }
 
@@ -214,6 +238,11 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          lblPos.Text = cursorPos_CUIT.ToString();
       }
 
+      /// <summary>
+      ///   Step 2: Buscar la empresa por CUIT
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
       private async void btnBuscarEmpresa_Click(object sender, EventArgs e)
       {
          string cuitEmpresa = txtCUIT.Text.Trim();
@@ -252,7 +281,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
 
          // Chequeo si la empresa tiene domicilio registrado
-         string empresaDomicilio = datosEmpresa.Rows[0]["DOMICILIO"].ToString();
+         string? empresaDomicilio = datosEmpresa.Rows[0]["DOMICILIO"].ToString();
 
          if (empresaDomicilio == Constantes.SIN_DOMICILIO)
          {
@@ -267,9 +296,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          grpImporteTotal.Enabled = true;
 
          dtpickerFechaVencimiento.Focus();
-         //txtImporteTotal.Focus();
 
-         //btnCargarFactura.Enabled = true;
       }
 
       private async void btnCargarFactura_Click(object sender, EventArgs e)
@@ -298,52 +325,64 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
             return;
          }
 
-         factura.Importe1 = txtImporte01.Text.Trim();
-         factura.Importe2 = txtImporte02.Text.Trim();
-         factura.Importe3 = txtImporte03.Text.Trim();
-         factura.Importe4 = txtImporte04.Text.Trim();
-         factura.Importe5 = txtImporte05.Text.Trim();
-         factura.Importe6 = txtImporte06.Text.Trim();
-         factura.Importe7 = txtImporte07.Text.Trim();
-         factura.Importe8 = txtImporte08.Text.Trim();
-         factura.Importe9 = txtImporte09.Text.Trim();
-
-         factura.Descripcion1 = txtItem01.Text.Trim();
-         factura.Descripcion2 = txtItem02.Text.Trim();
-         factura.Descripcion3 = txtItem03.Text.Trim();
-         factura.Descripcion4 = txtItem04.Text.Trim();
-         factura.Descripcion5 = txtItem05.Text.Trim();
-         factura.Descripcion6 = txtItem06.Text.Trim();
-         factura.Descripcion7 = txtItem07.Text.Trim();
-         factura.Descripcion8 = txtItem08.Text.Trim();
-         factura.Descripcion9 = txtItem09.Text.Trim();
-
          // muestro por pantalla el contenido del objeto factura
          Console.WriteLine(factura.ToString());
 
          // Si está todo OK, se procede a cargar la factura
-         //FormUtils.LoadingON();
-         //bool facturaCargada = await Logica.Script.CargarFacturaAsync(factura);
-         //FormUtils.LoadingOFF();
+         FormUtils.LoadingON();
+         DataTable dtCargarFactura = await Logica.Script.CargarFacturaAsync(factura);
+         FormUtils.LoadingOFF();
       }
 
+      /// <summary>
+      ///   Step 3: Fijar la fecha de vencimiento de la factura
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
       private void dtpickerFechaVencimiento_ValueChanged(object sender, EventArgs e)
       {
-         Console.WriteLine("CALL: dtpickerFechaVencimiento_ValueChanged()");
+         //Console.WriteLine("CALL: dtpickerFechaVencimiento_ValueChanged()");
          factura.FechaVencimiento = dtpickerFechaVencimiento.Value;
       }
 
-      private void btnValidarFacturaExistente_Click(object sender, EventArgs e)
+      private async void btnValidarFacturaExistente_Click(object sender, EventArgs e)
       {
-         int idFactura = int.Parse(txtNumFacturaNC.Text.Trim());
-         bool facturaExiste = Logica.Script.FacturaExiste(idFactura);
+         string strIdFactura = txtNumFacturaNC.Text;
+
+         if (strIdFactura.Length == 0)
+         {
+            MessageBox.Show("El número de factura no puede estar vacío.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtNumFacturaNC.Focus();
+            return;
+         }
+
+         if (strIdFactura.Length > 9)
+         {
+            MessageBox.Show("El número de factura no puede tener más de 9 dígitos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtNumFacturaNC.Focus();
+            return;
+         }
+
+         strIdFactura = FacturaHelper.AplicarMascara(strIdFactura);
+
+         FormUtils.LoadingON();
+         bool facturaExiste = await Logica.Script.FacturaExisteAsync(long.Parse(strIdFactura));
+         FormUtils.LoadingOFF();
+
+         lblNumFacturaNC.Text = strIdFactura;
 
          if (facturaExiste)
          {
-            txtNumFacturaNC.ForeColor = Color.Green;
-            notaCredito.NumeroFactura = idFactura;
-            txtNotaCredito.Focus();
+            lblNumFacturaNC.ForeColor = Color.Red;
+            txtNumFacturaNC.Focus();
+            return;
          }
+
+         grpNumeroNC.Enabled = true; // Habilito el grupo de número de nota de crédito
+         lblNumFacturaNC.ForeColor = Color.LimeGreen;
+         txtNotaCredito.Focus();
+
+         notaCredito.NumeroFactura = long.Parse(strIdFactura);
       }
 
       private void txtImporteTotal_Leave(object sender, EventArgs e)
@@ -374,13 +413,9 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
 
       private void dtpickerFechaVencimiento_Leave(object sender, EventArgs e)
       {
-         // valido que la fecha del control no sea mayor a 1 año
-         DateTime fechaVencimiento = dtpickerFechaVencimiento.Value;
-         DateTime fechaActual = DateTime.Now;
+         factura.FechaVencimiento = dtpickerFechaVencimiento.Value;
 
-         factura.FechaVencimiento = fechaVencimiento;
-
-         if (fechaVencimiento < fechaActual.AddYears(-1))
+         if (fechaSuperaElAño(dtpickerFechaVencimiento.Value))
          {
             MessageBox.Show("La fecha de vencimiento no debería ser mayor a 1 año.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             FormUtils.StatusMessage("La fecha de vencimiento no debería ser mayor a 1 año.");
@@ -412,38 +447,67 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          FormUtils.Numeric_KeyPress(ref sender, ref e, true);
       }
 
+      /// <summary>
+      ///   Step 5: Cargar la descripcion de los items de la factura
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
       private void ItemDescripcion_TextChanged(object sender, EventArgs e)
       {
+         Control? grupoPadre = FormUtils.GetParentGroupBox((Control) sender);
+         string? tagGrupoPadre = grupoPadre?.Tag?.ToString()?.ToUpper();
+
+         if (tagGrupoPadre == null)
+         {
+            Console.WriteLine("El textbox no pertenece a un grupo de ítems (fijar Tag como FC o NC)");
+            return;
+         }
+
+         List<(TextBox descripcion, TextBox importe)> itemSource =
+            tagGrupoPadre == Constantes.GRUPO_FACTURA
+               ? itemsFactura
+               : itemsNotaCredito;
+
+         Control btnCargarComprobante =
+            tagGrupoPadre == Constantes.GRUPO_FACTURA
+               ? btnCargarFactura
+               : btnCargarNotaCredito;
+
          TextBox txtDescripcion = (TextBox) sender;
          (TextBox descripcion, TextBox importe)
-            renglonActual = itemsFactura.FirstOrDefault(par => par.descripcion == txtDescripcion);
+            renglonActual = itemSource.FirstOrDefault(par => par.descripcion == txtDescripcion);
+         int indiceActual = itemSource.IndexOf(renglonActual);
 
-         int indiceActual = itemsFactura.IndexOf(renglonActual);
 
          (TextBox descripcion, TextBox importe)
-            renglonSiguiente = itemsFactura[indiceActual + 1];
+            renglonSiguiente = itemSource[indiceActual + 1];
+
 
          bool hayDescripcion = !string.IsNullOrWhiteSpace(txtDescripcion.Text);
          bool hayImporte = !string.IsNullOrWhiteSpace(renglonActual.importe.Text);
 
-         int ultimoIndice = itemsFactura.Count - 1;
+         int ultimoIndice = itemSource.Count - 1;
 
          if (hayDescripcion)
          {
             // Habilitar el TextBox de importe del par actual
             renglonActual.importe.Enabled = true;
-
             renglonSiguiente.descripcion.Enabled = indiceActual < ultimoIndice && hayImporte ? true : false;
          }
          else if (!hayImporte)
          {
             renglonActual.importe.Enabled = false;
-
             renglonSiguiente.descripcion.Enabled = indiceActual < ultimoIndice ? false : true;
          }
 
+         btnCargarComprobante.Enabled = ChequearPresenciaDeImporte(itemSource);
       }
 
+      /// <summary>
+      ///   Step 5: Cargar el importe de los items de la factura.
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
       private void ItemImporte_TextChanged(object sender, EventArgs e)
       {
          TextBox txtImporte = (TextBox) sender;
@@ -466,23 +530,312 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
                siguientePar.descripcion.Enabled = false;
             }
          }
+
+         lblImporteCalculadoFC.Text = CalcularImporteTotal_Factura().ToString();
+         lblImporteCalculadoFC.ForeColor = CalcularImporteTotal_Factura() == Decimal.Parse(txtImporteTotal.Text)
+            ? Color.Green
+            : Color.Red;
+         btnCargarFactura.Enabled = ChequearPresenciaDeImporte(itemsFactura) 
+            && CalcularImporteTotal_Factura() == Decimal.Parse(txtImporteTotal.Text);
       }
 
+      private decimal CalcularImporteTotal_Factura()
+      {
+         return CalcularImporteTotal(grpItemsFactura);
+      }
+
+      private decimal CalcularImporteTotal_NotaCredito()
+      {
+         return CalcularImporteTotal(grpItemsNC);
+      }
+
+      private decimal CalcularImporteTotal(GroupBox itemsContainer)
+      {
+         decimal total = 0m;
+
+         //  recorrer todos los textbox de importe y sumarlos (son solo los que tienen el campo tag = "importe"
+         IEnumerable<TextBox> camposImporte = itemsContainer
+            .Controls
+            .OfType<TextBox>()
+            .Where(txt => txt.Tag?.ToString() == "importe");
+
+         foreach (TextBox txtImporte in camposImporte)
+         {
+            if (decimal.TryParse(txtImporte.Text, out decimal importe))
+            {
+               total += importe;
+            }
+         }
+
+         return Math.Round(total, 2);
+      }
+
+      /// <summary>
+      ///   Step: Cargar la descripcion de los items de la nota de credito.
+      /// </summary>
+      private void ItemDescripcionNC_TextChanged(object sender, EventArgs e)
+      {
+         TextBox txtDescripcion = (TextBox) sender;
+         (TextBox descripcion, TextBox importe)
+            renglonActual = itemsNotaCredito.FirstOrDefault(par => par.descripcion == txtDescripcion);
+
+         int indiceActual = itemsNotaCredito.IndexOf(renglonActual);
+
+         (TextBox descripcion, TextBox importe)
+            renglonSiguiente = itemsNotaCredito[indiceActual + 1];
+
+         bool hayDescripcion = !string.IsNullOrWhiteSpace(txtDescripcion.Text);
+         bool hayImporte = !string.IsNullOrWhiteSpace(renglonActual.importe.Text);
+
+         int ultimoIndice = itemsNotaCredito.Count - 1;
+
+         if (hayDescripcion)
+         {
+            // Habilitar el TextBox de importe del par actual
+            renglonActual.importe.Enabled = true;
+            renglonSiguiente.descripcion.Enabled = indiceActual < ultimoIndice && hayImporte ? true : false;
+         }
+         else if (!hayImporte)
+         {
+            renglonActual.importe.Enabled = false;
+            renglonSiguiente.descripcion.Enabled = indiceActual < ultimoIndice ? false : true;
+         }
+
+         btnCargarNotaCredito.Enabled = ChequearPresenciaDeImporte(itemsNotaCredito);
+      }
+
+      /// <summary>
+      ///   Step: Cargar el importe de los items de la nota de credito.
+      /// </summary>
+      private void ItemImporteNC_TextChanged(object sender, EventArgs e)
+      {
+         TextBox txtImporte = (TextBox) sender;
+         (TextBox descripcion, TextBox importe) parActual = itemsNotaCredito.FirstOrDefault(par => par.importe == txtImporte);
+         int indiceActual = itemsNotaCredito.IndexOf(parActual);
+
+         bool hayDescripcion = !string.IsNullOrWhiteSpace(parActual.descripcion.Text);
+         bool hayImporte = !string.IsNullOrWhiteSpace(txtImporte.Text);
+
+         if (indiceActual < itemsNotaCredito.Count - 1)
+         {
+            var siguientePar = itemsNotaCredito[indiceActual + 1];
+
+            siguientePar.descripcion.Enabled = hayImporte && hayDescripcion;
+         }
+
+         btnCargarNotaCredito.Enabled = ChequearPresenciaDeImporte(itemsNotaCredito);
+         lblImporteCalculadoNC.Text = CalcularImporteTotal_NotaCredito().ToString();
+      }
+
+      /// <summary>
+      ///   Step 4: Fijar el importe total de la factura.
+      /// </summary>
+      /// <param name="sender"></param>
+      /// <param name="e"></param>
       private void txtImporteTotal_TextChanged(object sender, EventArgs e)
       {
          TextBox txtImporteTotal = (TextBox) sender;
          bool hayImporteTotal = !string.IsNullOrWhiteSpace(txtImporteTotal.Text);
 
-         if (hayImporteTotal)
+         grpItemsFactura.Enabled = hayImporteTotal;
+      }
+
+      /// <summary>
+      ///   Chequeo si hay algun importe con valor.
+      /// </summary>
+      /// <returns></returns>
+      private bool ChequearPresenciaDeImporte(List<(TextBox descripcion, TextBox importe)> items)
+      {
+         bool hayImporte = false;
+
+         foreach (var (descripcion, importe) in items)
          {
-            grpItemsFactura.Enabled = true;
-            //txtItem01.Enabled = true;
+            // chequeo si hay algun importe con valor
+            hayImporte = hayImporte || !string.IsNullOrWhiteSpace(importe.Text);
          }
-         else
+
+         return hayImporte;
+      }
+
+      private void txtNumFacturaNC_KeyDown(object sender, KeyEventArgs e)
+      {
+         if (e.KeyCode == Keys.Enter)
          {
-            grpItemsFactura.Enabled = false;
-            //txtItem01.Enabled = false;
+            btnValidarNumFactura.PerformClick();
          }
+      }
+
+      private void txtNumFacturaNC_KeyPress(object sender, KeyPressEventArgs e)
+      {
+         FormUtils.Numeric_KeyPress(ref sender, ref e);
+      }
+
+      private void txtNotaCredito_KeyDown(object sender, KeyEventArgs e)
+      {
+         if (e.KeyCode == Keys.Enter)
+         {
+            btnValidarNotaCredito.PerformClick();
+         }
+
+         //cursorPos_CUIT = txtNotaCredito.SelectionStart;
+         //lblPos.Text = cursorPos_CUIT.ToString();
+      }
+
+      private void txtNotaCredito_KeyPress(object sender, KeyPressEventArgs e)
+      {
+         FormUtils.Numeric_KeyPress(ref sender, ref e);
+      }
+
+      private async void btnValidarNotaCredito_Click(object sender, EventArgs e)
+      {
+         string strIdNotaCredito = txtNumFacturaNC.Text;
+
+         if (strIdNotaCredito.Length == 0)
+         {
+            MessageBox.Show("El número de factura no puede estar vacío.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtNumFacturaNC.Focus();
+            return;
+         }
+
+         if (strIdNotaCredito.Length > 9)
+         {
+            MessageBox.Show("El número de factura no puede tener más de 9 dígitos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtNumFacturaNC.Focus();
+            return;
+         }
+
+         strIdNotaCredito = FacturaHelper.AplicarMascara(strIdNotaCredito);
+
+         FormUtils.LoadingON();
+         bool notaCreditoExiste = await Logica.Script.NotaCreditoExisteAsync(long.Parse(strIdNotaCredito));
+         FormUtils.LoadingOFF();
+
+         lblNumeroNC.Text = strIdNotaCredito;
+
+         if (notaCreditoExiste)
+         {
+            lblNumeroNC.ForeColor = Color.Red;
+            txtNumFacturaNC.Focus();
+            return;
+         }
+
+         grpFechaVtoNC.Enabled = true; // Habilito el grupo de fecha de vencimiento de la nota de crédito
+         grpImporteTotalNC.Enabled = true; // Habilito el grupo de importe total de la nota de crédito
+
+         lblNumeroNC.ForeColor = Color.LimeGreen;
+         dtpickerFechaVtoNC.Focus();
+
+         notaCredito.NumeroFactura = long.Parse(strIdNotaCredito);
+      }
+
+      private void dtpickerFechaVtoNC_Leave(object sender, EventArgs e)
+      {
+         notaCredito.FechaVencimiento = dtpickerFechaVtoNC.Value;
+
+         if (fechaSuperaElAño(dtpickerFechaVtoNC.Value))
+         {
+            MessageBox.Show("La fecha de vencimiento no debería ser mayor a 1 año.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            FormUtils.StatusMessage("La fecha de vencimiento no debería ser mayor a 1 año.");
+         }
+      }
+
+      private void dtpickerFechaVtoNC_ValueChanged(object sender, EventArgs e)
+      {
+         notaCredito.FechaVencimiento = dtpickerFechaVtoNC.Value;
+      }
+
+      private void txtImporteTotalNC_TextChanged(object sender, EventArgs e)
+      {
+         TextBox txtImporteTotalNC = (TextBox) sender;
+         bool hayImporteTotalNC = !string.IsNullOrWhiteSpace(txtImporteTotalNC.Text);
+
+         grpItemsNC.Enabled = hayImporteTotalNC;
+      }
+
+      private void txtImporteTotalNC_KeyPress(object sender, KeyPressEventArgs e)
+      {
+         FormUtils.Numeric_KeyPress(ref sender, ref e, true);
+      }
+
+      private void txtImporteTotalNC_Leave(object sender, EventArgs e)
+      {
+         if (string.IsNullOrEmpty(txtImporteTotalNC.Text))
+         {
+            return;
+         }
+
+         decimal importeTotalNC = decimal.Parse(txtImporteTotalNC.Text.Trim());
+
+         if (importeTotalNC < 0)
+         {
+            MessageBox.Show("El importe total no puede ser negativo.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            txtImporteTotalNC.Focus();
+         }
+
+         notaCredito.ImporteTotal = importeTotalNC;
+
+         grpItemsNC.Enabled = true; // Habilito grupo de items de factura
+                                    //txtItem01.Enabled = true; // Habilito primer item de factura
+      }
+
+      private void btnCargarNotaCredito_Click(object sender, EventArgs e)
+      {
+         if (notaCredito.NumeroFactura == 0)
+         {
+            // Error, el número de notaCredito no puede ser 0, revise los datos por favor.
+            MessageBox.Show("El número de notaCredito no puede ser 0.\nRevise los datos por favor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtNumFactura.Focus();
+            return;
+         }
+
+         if (notaCredito.NumeroNota == 0)
+         {
+            // Error, el número de notaCredito no puede ser 0, revise los datos por favor.
+            MessageBox.Show("El número de notaCredito no puede ser 0.\nRevise los datos por favor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtNumFactura.Focus();
+            return;
+         }
+
+         if (fechaSuperaElAño(dtpickerFechaVtoNC.Value))
+         {
+            MessageBox.Show("La fecha de vencimiento no debería ser mayor a 1 año.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            FormUtils.StatusMessage("La fecha de vencimiento no debería ser mayor a 1 año.");
+         }
+
+         notaCredito.Importe1 = txtImporteNC01.Text.Trim();
+         notaCredito.Importe2 = txtImporteNC02.Text.Trim();
+         notaCredito.Importe3 = txtImporteNC03.Text.Trim();
+         notaCredito.Importe4 = txtImporteNC04.Text.Trim();
+         notaCredito.Importe5 = txtImporteNC05.Text.Trim();
+         notaCredito.Importe6 = txtImporteNC06.Text.Trim();
+         notaCredito.Importe7 = txtImporteNC07.Text.Trim();
+         notaCredito.Importe8 = txtImporteNC08.Text.Trim();
+         notaCredito.Importe9 = txtImporteNC09.Text.Trim();
+
+         notaCredito.Descripcion1 = txtItemNC01.Text.Trim();
+         notaCredito.Descripcion2 = txtItemNC02.Text.Trim();
+         notaCredito.Descripcion3 = txtItemNC03.Text.Trim();
+         notaCredito.Descripcion4 = txtItemNC04.Text.Trim();
+         notaCredito.Descripcion5 = txtItemNC05.Text.Trim();
+         notaCredito.Descripcion6 = txtItemNC06.Text.Trim();
+         notaCredito.Descripcion7 = txtItemNC07.Text.Trim();
+         notaCredito.Descripcion8 = txtItemNC08.Text.Trim();
+         notaCredito.Descripcion9 = txtItemNC09.Text.Trim();
+
+         // muestro por pantalla el contenido del objeto notaCredito
+         Console.WriteLine(notaCredito.ToString());
+
+         // Si está todo OK, se procede a cargar la notaCredito
+         //FormUtils.LoadingON();
+         //bool notaCreditoCargada = await Logica.Script.CargarFacturaAsync(notaCredito);
+         //FormUtils.LoadingOFF();
+      }
+
+      private bool fechaSuperaElAño(DateTime dtFecha)
+      {
+         DateTime fechaActual = DateTime.Now;
+
+         return dtFecha < fechaActual.AddYears(-1);
       }
    }
 }

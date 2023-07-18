@@ -9,14 +9,14 @@ namespace Entidades
    public class Factura
    {
       #region Atributos de la Factura
-      public long NumeroFactura { get; set; }
-      public int IdEmpresa { get; set; }
-      public DateTime FechaAlta { get; set; }
-      public DateTime FechaVencimiento { get; set; }
+      public long NumeroFactura { get; set; } = 0;
+      public int IdEmpresa { get; set; } = 0;
+      public DateTime? FechaAlta { get; set; } = null;
+      public DateTime? FechaVencimiento { get; set; } = null;
       public string RazonSocial { get; set; } = string.Empty;
       public string Domicilio { get; set; } = string.Empty;
-      public long Cuit { get; set; }
-      public decimal ImporteTotal { get; set; }
+      public long? Cuit { get; set; } = null;
+      public decimal ImporteTotal { get; set; } = 0m;
       public string Estado { get; set; } = string.Empty;
 
       #endregion
