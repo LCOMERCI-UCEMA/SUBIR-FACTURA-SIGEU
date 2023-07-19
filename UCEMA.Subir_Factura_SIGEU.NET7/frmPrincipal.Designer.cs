@@ -38,6 +38,7 @@
          grpFechaVto = new GroupBox();
          dtpickerFechaVencimiento = new DateTimePicker();
          grpItemsFactura = new GroupBox();
+         dgvCargarFactura = new DataGridView();
          lblImporteCalculadoFC = new Label();
          txtImporte09 = new TextBox();
          txtImporte08 = new TextBox();
@@ -108,6 +109,7 @@
          grpImporteTotal.SuspendLayout();
          grpFechaVto.SuspendLayout();
          grpItemsFactura.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize) dgvCargarFactura).BeginInit();
          grpEmpresa.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize) dgvEmpresa).BeginInit();
          grpNumFactura.SuspendLayout();
@@ -124,7 +126,7 @@
          // 
          btnCargarFactura.Anchor = AnchorStyles.Bottom;
          btnCargarFactura.Enabled = false;
-         btnCargarFactura.Location = new Point(228, 599);
+         btnCargarFactura.Location = new Point(228, 675);
          btnCargarFactura.Name = "btnCargarFactura";
          btnCargarFactura.Size = new Size(107, 24);
          btnCargarFactura.TabIndex = 7;
@@ -140,7 +142,7 @@
          tabTipoComprobante.Location = new Point(12, 12);
          tabTipoComprobante.Name = "tabTipoComprobante";
          tabTipoComprobante.SelectedIndex = 0;
-         tabTipoComprobante.Size = new Size(573, 671);
+         tabTipoComprobante.Size = new Size(573, 747);
          tabTipoComprobante.TabIndex = 0;
          // 
          // tabFactura
@@ -154,7 +156,7 @@
          tabFactura.Location = new Point(4, 24);
          tabFactura.Name = "tabFactura";
          tabFactura.Padding = new Padding(3);
-         tabFactura.Size = new Size(565, 643);
+         tabFactura.Size = new Size(565, 719);
          tabFactura.TabIndex = 0;
          tabFactura.Text = "Factura";
          tabFactura.UseVisualStyleBackColor = true;
@@ -207,6 +209,7 @@
          // grpItemsFactura
          // 
          grpItemsFactura.Anchor =  AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+         grpItemsFactura.Controls.Add(dgvCargarFactura);
          grpItemsFactura.Controls.Add(lblImporteCalculadoFC);
          grpItemsFactura.Controls.Add(txtImporte09);
          grpItemsFactura.Controls.Add(txtImporte08);
@@ -229,18 +232,27 @@
          grpItemsFactura.Enabled = false;
          grpItemsFactura.Location = new Point(6, 308);
          grpItemsFactura.Name = "grpItemsFactura";
-         grpItemsFactura.Size = new Size(553, 329);
+         grpItemsFactura.Size = new Size(553, 405);
          grpItemsFactura.TabIndex = 4;
          grpItemsFactura.TabStop = false;
          grpItemsFactura.Tag = "FC";
          grpItemsFactura.Text = "Ítems";
+         // 
+         // dgvCargarFactura
+         // 
+         dgvCargarFactura.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         dgvCargarFactura.Location = new Point(19, 292);
+         dgvCargarFactura.Name = "dgvCargarFactura";
+         dgvCargarFactura.RowTemplate.Height = 25;
+         dgvCargarFactura.Size = new Size(513, 66);
+         dgvCargarFactura.TabIndex = 25;
          // 
          // lblImporteCalculadoFC
          // 
          lblImporteCalculadoFC.Anchor =  AnchorStyles.Bottom | AnchorStyles.Right;
          lblImporteCalculadoFC.BorderStyle = BorderStyle.FixedSingle;
          lblImporteCalculadoFC.ForeColor = SystemColors.ControlText;
-         lblImporteCalculadoFC.Location = new Point(438, 291);
+         lblImporteCalculadoFC.Location = new Point(438, 367);
          lblImporteCalculadoFC.Name = "lblImporteCalculadoFC";
          lblImporteCalculadoFC.Size = new Size(94, 24);
          lblImporteCalculadoFC.TabIndex = 24;
@@ -504,10 +516,10 @@
          dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
          dgvEmpresa.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
          dgvEmpresa.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-         dgvEmpresa.Location = new Point(19, 58);
+         dgvEmpresa.Location = new Point(19, 59);
          dgvEmpresa.Name = "dgvEmpresa";
          dgvEmpresa.RowTemplate.Height = 25;
-         dgvEmpresa.Size = new Size(514, 86);
+         dgvEmpresa.Size = new Size(514, 85);
          dgvEmpresa.TabIndex = 10;
          // 
          // grpNumFactura
@@ -566,7 +578,7 @@
          tabNotaCredito.Location = new Point(4, 24);
          tabNotaCredito.Name = "tabNotaCredito";
          tabNotaCredito.Padding = new Padding(3);
-         tabNotaCredito.Size = new Size(565, 643);
+         tabNotaCredito.Size = new Size(565, 719);
          tabNotaCredito.TabIndex = 1;
          tabNotaCredito.Text = "Nota de Crédito";
          tabNotaCredito.UseVisualStyleBackColor = true;
@@ -937,7 +949,7 @@
          // statusbar
          // 
          statusbar.Items.AddRange(new ToolStripItem[] { lblStatusInformation });
-         statusbar.Location = new Point(0, 704);
+         statusbar.Location = new Point(0, 780);
          statusbar.Name = "statusbar";
          statusbar.Size = new Size(597, 22);
          statusbar.SizingGrip = false;
@@ -952,7 +964,7 @@
          // 
          AutoScaleDimensions = new SizeF(7F, 15F);
          AutoScaleMode = AutoScaleMode.Font;
-         ClientSize = new Size(597, 726);
+         ClientSize = new Size(597, 802);
          Controls.Add(statusbar);
          Controls.Add(btnCargando);
          Controls.Add(tabTipoComprobante);
@@ -972,6 +984,7 @@
          grpFechaVto.ResumeLayout(false);
          grpItemsFactura.ResumeLayout(false);
          grpItemsFactura.PerformLayout();
+         ((System.ComponentModel.ISupportInitialize) dgvCargarFactura).EndInit();
          grpEmpresa.ResumeLayout(false);
          grpEmpresa.PerformLayout();
          ((System.ComponentModel.ISupportInitialize) dgvEmpresa).EndInit();
@@ -1067,5 +1080,6 @@
       private ToolStripStatusLabel lblStatusInformation;
       private Label lblImporteCalculadoFC;
       private Label lblImporteCalculadoNC;
+      private DataGridView dgvCargarFactura;
    }
 }

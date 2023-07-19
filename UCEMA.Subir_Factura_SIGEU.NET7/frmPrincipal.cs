@@ -206,6 +206,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
 
          grpEmpresa.Enabled = true; // Habilito el grupo de controles de empresa
          lblNumFactura.ForeColor = Color.LimeGreen;
+         txtNumFactura.Text = strIdFactura;
          txtCUIT.Focus();
 
          factura.NumeroFactura = long.Parse(strIdFactura);
@@ -281,7 +282,7 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
 
          // Chequeo si la empresa tiene domicilio registrado
-         string? empresaDomicilio = datosEmpresa.Rows[0]["DOMICILIO"].ToString();
+         string empresaDomicilio = datosEmpresa.Rows[0]["DOMICILIO"].ToString() ?? Constantes.SIN_DOMICILIO;
 
          if (empresaDomicilio == Constantes.SIN_DOMICILIO)
          {
@@ -289,8 +290,12 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
             return;
          }
 
+         string razonSocial = datosEmpresa.Rows[0]["RAZON_SOCIAL"].ToString() ?? Constantes.NO_DISPONIBLE;
+
          factura.Cuit = long.Parse(cuitEmpresa);
          factura.IdEmpresa = idEmpresa;
+         factura.Domicilio = empresaDomicilio;
+         factura.RazonSocial = razonSocial;
 
          grpFechaVto.Enabled = true;
          grpImporteTotal.Enabled = true;
@@ -325,12 +330,33 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
             return;
          }
 
+         factura.Importe01 = !string.IsNullOrWhiteSpace(txtImporte01.Text) ? decimal.Parse(txtImporte01.Text) : factura.Importe01;
+         factura.Importe02 = !string.IsNullOrWhiteSpace(txtImporte02.Text) ? decimal.Parse(txtImporte02.Text) : factura.Importe02;
+         factura.Importe03 = !string.IsNullOrWhiteSpace(txtImporte03.Text) ? decimal.Parse(txtImporte03.Text) : factura.Importe03;
+         factura.Importe04 = !string.IsNullOrWhiteSpace(txtImporte04.Text) ? decimal.Parse(txtImporte04.Text) : factura.Importe04;
+         factura.Importe05 = !string.IsNullOrWhiteSpace(txtImporte05.Text) ? decimal.Parse(txtImporte05.Text) : factura.Importe05;
+         factura.Importe06 = !string.IsNullOrWhiteSpace(txtImporte06.Text) ? decimal.Parse(txtImporte06.Text) : factura.Importe06;
+         factura.Importe07 = !string.IsNullOrWhiteSpace(txtImporte07.Text) ? decimal.Parse(txtImporte07.Text) : factura.Importe07;
+         factura.Importe08 = !string.IsNullOrWhiteSpace(txtImporte08.Text) ? decimal.Parse(txtImporte08.Text) : factura.Importe08;
+         factura.Importe09 = !string.IsNullOrWhiteSpace(txtImporte09.Text) ? decimal.Parse(txtImporte09.Text) : factura.Importe09;
+
+         factura.Descripcion01 = txtItem01.Text.Trim();
+         factura.Descripcion02 = txtItem02.Text.Trim();
+         factura.Descripcion03 = txtItem03.Text.Trim();
+         factura.Descripcion04 = txtItem04.Text.Trim();
+         factura.Descripcion05 = txtItem05.Text.Trim();
+         factura.Descripcion06 = txtItem06.Text.Trim();
+         factura.Descripcion07 = txtItem07.Text.Trim();
+         factura.Descripcion08 = txtItem08.Text.Trim();
+         factura.Descripcion09 = txtItem09.Text.Trim();
+
          // muestro por pantalla el contenido del objeto factura
          Console.WriteLine(factura.ToString());
 
          // Si está todo OK, se procede a cargar la factura
          FormUtils.LoadingON();
-         DataTable dtCargarFactura = await Logica.Script.CargarFacturaAsync(factura);
+         //DataTable dtCargarFactura = await Logica.Script.CargarFacturaAsync(factura);
+         dgvCargarFactura.DataSource = await Logica.Script.CargarFacturaAsync(factura);
          FormUtils.LoadingOFF();
       }
 
@@ -532,10 +558,12 @@ namespace UCEMA.Subir_Factura_SIGEU.NET7
          }
 
          lblImporteCalculadoFC.Text = CalcularImporteTotal_Factura().ToString();
+
          lblImporteCalculadoFC.ForeColor = CalcularImporteTotal_Factura() == Decimal.Parse(txtImporteTotal.Text)
             ? Color.Green
             : Color.Red;
-         btnCargarFactura.Enabled = ChequearPresenciaDeImporte(itemsFactura) 
+
+         btnCargarFactura.Enabled = ChequearPresenciaDeImporte(itemsFactura)
             && CalcularImporteTotal_Factura() == Decimal.Parse(txtImporteTotal.Text);
       }
 

@@ -9,6 +9,7 @@ namespace Entidades
    public static class Constantes
    {
       public const string SIN_DOMICILIO = "(SIN DOMICILIO)";
+      public const string NO_DISPONIBLE = "(NO DISPONIBLE)";
 
       public const string GRUPO_FACTURA = "FC";
       public const string GRUPO_NOTA_CREDITO = "NC";

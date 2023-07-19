@@ -22,24 +22,24 @@ namespace Entidades
       #endregion
 
       #region Items de la Factura
-      public string Descripcion1 { get; set; } = string.Empty;
-      public string Importe1 { get; set; } = string.Empty;
-      public string Descripcion2 { get; set; } = string.Empty;
-      public string Importe2 { get; set; } = string. Empty;
-      public string Descripcion3 { get; set; } = string.Empty;
-      public string Importe3 { get; set; } = string. Empty;
-      public string Descripcion4 { get; set; } = string.Empty;
-      public string Importe4 { get; set; } = string. Empty;
-      public string Descripcion5 { get; set; } = string.Empty;
-      public string Importe5 { get; set; } = string. Empty;
-      public string Descripcion6 { get; set; } = string.Empty;
-      public string Importe6 { get; set; } = string. Empty;
-      public string Descripcion7 { get; set; } = string.Empty;
-      public string Importe7 { get; set; } = string. Empty;
-      public string Descripcion8 { get; set; } = string.Empty;
-      public string Importe8 { get; set; } = string. Empty;
-      public string Descripcion9 { get; set; } = string.Empty;
-      public string Importe9 { get; set; } = string. Empty;
+      public string Descripcion01 { get; set; } = string.Empty;
+      public decimal Importe01 { get; set; } = 0m;
+      public string Descripcion02 { get; set; } = string.Empty;
+      public decimal Importe02 { get; set; } = 0m;
+      public string Descripcion03 { get; set; } = string.Empty;
+      public decimal Importe03 { get; set; } = 0m;
+      public string Descripcion04 { get; set; } = string.Empty;
+      public decimal Importe04 { get; set; } = 0m;
+      public string Descripcion05 { get; set; } = string.Empty;
+      public decimal Importe05 { get; set; } = 0m;
+      public string Descripcion06 { get; set; } = string.Empty;
+      public decimal Importe06 { get; set; } = 0m;
+      public string Descripcion07 { get; set; } = string.Empty;
+      public decimal Importe07 { get; set; } = 0m;
+      public string Descripcion08 { get; set; } = string.Empty;
+      public decimal Importe08 { get; set; } = 0m;
+      public string Descripcion09 { get; set; } = string.Empty;
+      public decimal Importe09 { get; set; } = 0m;
 
       #endregion
    }

@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Security.Policy;
 using Entidades;
 
+using SPParam = Entidades.StoredProcedureParam;
+
 namespace Datos
 {
    public static class Script
@@ -128,9 +130,9 @@ namespace Datos
             {
                cmd.CommandType = CommandType.StoredProcedure;
 
-               foreach (KeyValuePair<string, StoredProcedureParam> arg in storedProcArgs)
+               foreach (KeyValuePair<string, SPParam> arg in storedProcArgs)
                {
-                  StoredProcedureParam param = arg.Value;
+                  SPParam param = arg.Value;
 
                   cmd.Parameters.Add(arg.Key, param.Tipo).Value = param.Valor;
                }
@@ -159,7 +161,7 @@ namespace Datos
       public static async Task<DataTable> BuscarEmpresaAsync(string cuitEmpresa)
       {
          List<string> campos = new List<string>() {
-             "EMPRESAS.N_ID_EMPRESA", "D_EMPRESA", "N_CUIT",
+             "EMPRESAS.N_ID_EMPRESA", "D_EMPRESA AS RAZON_SOCIAL", "N_CUIT",
             @$"CASE WHEN D_DIRECCION IS NULL THEN '{Constantes.SIN_DOMICILIO}'
                    ELSE D_DIRECCION||' '||N_DOMICILIO END AS DOMICILIO",
             @"CASE WHEN C_PROVINCIA = 'C' THEN 'CABA' 
@@ -181,7 +183,7 @@ namespace Datos
 
       public static bool CargarFactura(Factura factura)
       {
-         DataTable dtResultado = Consultar(@$"SELECT CEMAP.CARGAR_FACTURA() FROM DUAL");
+         DataTable dtResultado = Consultar(@$"SELECT CARGAR_FACTURA() FROM DUAL");
 
          return dtResultado.Rows.Count > 0;
       }
@@ -192,7 +194,7 @@ namespace Datos
       public static async Task<DataTable> CargarFacturaAsync(Dictionary<string, StoredProcedureParam> args)
       {
          // TODO: Desempaquetar los params segun como haya que llamarla...
-         return await StoredProcedureAsync("GENERAR_FACTURA_SIGEU", args);
+         return await StoredProcedureAsync("UCEMADEV.GENERAR_FACTURA_SIGEU", args);
       }
 
 /*
@@ -224,6 +226,11 @@ namespace Datos
       public static async Task<DataTable> BuscarNotaCreditoAsync(long idNotaCredito)
       {
          return await ConsultarAsync(@$"SELECT * FROM CEMAP.NOTAS_CREDITO WHERE N_NOTA = '{idNotaCredito}'");
+      }
+
+      public static async Task<DataTable> AnularFactura(int idFactura)
+      {
+         return await ConsultarAsync(@$"UPDATE CEMAP.FACTURAS SET C_ESTADO = 'Anulada' WHERE N_FACTURA = '{idFactura}'");
       }
    }
 }
